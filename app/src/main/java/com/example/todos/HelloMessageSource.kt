@@ -2,24 +2,31 @@ package com.example.todos
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.POST
 
 data class TodoDto(
     //    TODO remove the = 0, ="", = false and see what happens
     @SerializedName("id") val id: Int = 0,
     @SerializedName("text") val text: String = "",
-    @SerializedName("done") val done: Boolean = false
+    @SerializedName("done") val done: Boolean = false,
+//    @SerializedName("dflakjsdl") val dfalskj: String,
 )
 
 interface TodosService {
     @GET("/")
     suspend fun getTodos(): List<TodoDto>
 
-    @GET("/create")
-    suspend fun createTodos(): List<TodoDto>
+    @POST("/")
+    suspend fun createTodos(): TodoDto
 }
 
 object RetrofitBuilder {
@@ -38,19 +45,31 @@ object RetrofitBuilder {
 
 interface TodosApiHelper {
     fun getTodos(): Flow<List<TodoDto>>
-    fun createTodos(): Flow<List<TodoDto>>
+    fun createTodos(): Flow<TodoDto>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
+    private val _refreshFlow = MutableStateFlow(0)
+    val refreshFlow = _refreshFlow.asStateFlow()
+
+    private val _lastAddedMessage = MutableStateFlow<String?>("haha")
+    val lastAddedMessage = _lastAddedMessage.asStateFlow()
     override fun getTodos(): Flow<List<TodoDto>> {
-        return flow {
-            emit(todosService.getTodos())
+        return _refreshFlow.asStateFlow().flatMapLatest {
+            flow {
+                emit(todosService.getTodos())
+
+            }
         }
     }
 
-    override fun createTodos(): Flow<List<TodoDto>> {
+    override fun createTodos(): Flow<TodoDto> {
         return flow {
-            emit(todosService.createTodos())
+            val stuff = todosService.createTodos()
+            _lastAddedMessage.value = stuff.text
+            emit(stuff)
+        }.onCompletion {
+            _refreshFlow.value = _refreshFlow.value + 1
         }
     }
 }

@@ -3,8 +3,12 @@ package com.example.todos
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.todos.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -22,14 +26,36 @@ class MainActivity : AppCompatActivity() {
 
         val apiHelper = ApiHelperImpl(RetrofitBuilder.apiService)
 
+        lifecycleScope.launch {
+            apiHelper.refreshFlow.collect() {
+                binding.buttonTwo.text = it.toString()
 
-        MainScope().launch {
+            }
+        }
+
+        lifecycleScope.launch {
+            apiHelper.lastAddedMessage.collect() {
+                replaceFragment(FragmentOne.newInstance(it ?: "Smoething went wrong"))
+
+            }
+        }
+
+        binding.buttonOne.setOnClickListener {
+
+            lifecycleScope.launch {
+                apiHelper.createTodos().collect() {
+                }
+            }
+        }
+
+
+        lifecycleScope.launch {
             binding.buttonTwo.setOnClickListener {
                 replaceFragment(FragmentTwo())
             }
 
 
-            apiHelper.createTodos().collect() { todos ->
+            apiHelper.getTodos().collect() { todos ->
                 binding.buttonOne.text = todos.size.toString()
 
             }

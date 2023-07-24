@@ -39,6 +39,13 @@
             android:text="Fragment Two"
             android:id="@+id/button_two"
             />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World!"
+            android:id="@+id/last_added"
+            />
     </LinearLayout>
 
 </LinearLayout>

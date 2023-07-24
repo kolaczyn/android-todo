@@ -11,6 +11,7 @@
         android:textStyle="bold"
         android:textSize="30sp"
         android:text="Fragment One"
+        android:id="@+id/textViewMessage"
         />
 
 </LinearLayout>
