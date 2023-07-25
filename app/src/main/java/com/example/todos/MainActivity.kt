@@ -2,8 +2,11 @@ package com.example.todos
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.todos.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,54 +22,29 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.buttonOne.setOnClickListener {
-            replaceFragment(FragmentOne())
-        }
-
-
         val apiHelper = ApiHelperImpl(RetrofitBuilder.apiService)
 
-        lifecycleScope.launch {
-            apiHelper.refreshFlow.collect() {
-                binding.buttonTwo.text = it.toString()
-
-            }
-        }
-
-        lifecycleScope.launch {
-            apiHelper.lastAddedMessage.collect() {
-                replaceFragment(FragmentOne.newInstance(it ?: "Smoething went wrong"))
-
-            }
-        }
+        var items = mutableListOf<TodoDto>();
+        val adapter = ListAdapter(items)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
         binding.buttonOne.setOnClickListener {
-
             lifecycleScope.launch {
                 apiHelper.createTodos().collect() {
                 }
             }
         }
 
-
         lifecycleScope.launch {
-            binding.buttonTwo.setOnClickListener {
-                replaceFragment(FragmentTwo())
-            }
-
-
             apiHelper.getTodos().collect() { todos ->
-                binding.buttonOne.text = todos.size.toString()
-
+                binding.buttonOne.text = "Total todos: ${todos.size}"
+                items.clear()
+                val newItems = todos.toMutableList()
+                items.addAll(newItems)
+                adapter.notifyDataSetChanged()
             }
 
         }
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fragment_container_view, fragment)
-        fragmentTransaction.commit()
     }
 }

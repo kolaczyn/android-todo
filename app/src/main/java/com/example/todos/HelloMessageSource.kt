@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
@@ -21,12 +22,14 @@ data class TodoDto(
 //    @SerializedName("dflakjsdl") val dfalskj: String,
 )
 
+data class CreateTodoDto(val text: String)
+
 interface TodosService {
     @GET("/")
     suspend fun getTodos(): List<TodoDto>
 
     @POST("/")
-    suspend fun createTodos(): TodoDto
+    suspend fun createTodos(@Body todo: CreateTodoDto): TodoDto
 }
 
 object RetrofitBuilder {
@@ -65,7 +68,7 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
 
     override fun createTodos(): Flow<TodoDto> {
         return flow {
-            val stuff = todosService.createTodos()
+            val stuff = todosService.createTodos(CreateTodoDto("Hello world"))
             _lastAddedMessage.value = stuff.text
             emit(stuff)
         }.onCompletion {
