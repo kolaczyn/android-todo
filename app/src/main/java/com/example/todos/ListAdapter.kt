@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -13,8 +14,7 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
     RecyclerView.Adapter<ListAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.listItemTextView)
-        val deleteButton: Button = itemView.findViewById(R.id.itemDeleteButton)
-        val toggleButton: Button = itemView.findViewById(R.id.itemToggle)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.itemDeleteButton)
         val checkBox: CheckBox = itemView.findViewById(R.id.listItemCheckBox)
     }
 
@@ -31,9 +31,6 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
         val item = items[position]
         holder.deleteButton.setOnClickListener {
             listener?.invoke(position, item)
-        }
-        holder.toggleButton.setOnClickListener {
-            toggleListener?.invoke(item)
         }
         holder.checkBox.isChecked = item.done
         holder.checkBox.setOnCheckedChangeListener { compoundButton, b ->
