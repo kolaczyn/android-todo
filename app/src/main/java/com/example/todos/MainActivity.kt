@@ -3,6 +3,7 @@ package com.example.todos
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,7 +38,14 @@ class MainActivity : AppCompatActivity() {
                 if (text.isBlank()) {
                     return@launch
                 }
-                apiHelper.createTodos(text).collect()
+                apiHelper.createTodos(text).collect {
+                    binding.editText.text.clear()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Created todo: ${it.text}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
 
