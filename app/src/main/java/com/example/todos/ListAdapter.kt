@@ -21,10 +21,15 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.textView.text = item.text
+        holder.textView.text = "${item.text} is ${if (item.done) "done" else "not done"}"
     }
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun removeItem(position: Int) {
+        items.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

@@ -15,11 +15,9 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 data class TodoDto(
-    //    TODO remove the = 0, ="", = false and see what happens
     @SerializedName("id") val id: Int = 0,
     @SerializedName("text") val text: String = "",
     @SerializedName("done") val done: Boolean = false,
-//    @SerializedName("dflakjsdl") val dfalskj: String,
 )
 
 data class CreateTodoDto(val text: String)
@@ -48,28 +46,23 @@ object RetrofitBuilder {
 
 interface TodosApiHelper {
     fun getTodos(): Flow<List<TodoDto>>
-    fun createTodos(): Flow<TodoDto>
+    fun createTodos(text: String): Flow<TodoDto>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
     private val _refreshFlow = MutableStateFlow(0)
-    val refreshFlow = _refreshFlow.asStateFlow()
 
-    private val _lastAddedMessage = MutableStateFlow<String?>("haha")
-    val lastAddedMessage = _lastAddedMessage.asStateFlow()
     override fun getTodos(): Flow<List<TodoDto>> {
         return _refreshFlow.asStateFlow().flatMapLatest {
             flow {
                 emit(todosService.getTodos())
-
             }
         }
     }
 
-    override fun createTodos(): Flow<TodoDto> {
+    override fun createTodos(text: String): Flow<TodoDto> {
         return flow {
-            val stuff = todosService.createTodos(CreateTodoDto("Hello world"))
-            _lastAddedMessage.value = stuff.text
+            val stuff = todosService.createTodos(CreateTodoDto(text))
             emit(stuff)
         }.onCompletion {
             _refreshFlow.value = _refreshFlow.value + 1
@@ -77,16 +70,3 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
     }
 }
 
-class HelloMessageSource(
-    private val todosService: TodosService,
-    private val refreshIntervalMs: Long = 5000
-) {
-    val latestNews = flow {
-        emit(todosService.getTodos())
-    }
-}
-
-// Interface that provides a way to make network requests with suspend functions
-interface HelloMessage {
-    suspend fun fetchLatestNews(): List<String>
-}

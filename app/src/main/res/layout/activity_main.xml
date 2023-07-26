@@ -7,12 +7,21 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:name="com.example.todos.ExampleFragment">
-    </androidx.fragment.app.FragmentContainerView>
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="5dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:background="#ffbb"
+            android:layout_height="290dp"
+            android:id="@+id/recyclerView"
+            >
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,11 +32,11 @@
             android:layout_width="wrap_content"
             android:id="@+id/button_one"
             android:layout_height="wrap_content"
-            android:text="Fragment One"
+            android:text="@string/add_todo"
             />
 
         <View
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
@@ -35,7 +44,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fetch todos on the list"
+            android:text="@string/placeholder"
             android:id="@+id/button_two"
             />
 
@@ -44,30 +53,23 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:paddingHorizontal="5dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-            android:id="@+id/last_added"
+            tools:text="Hello World!"
+            android:id="@+id/totalTodos"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText"
             />
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="5dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView"
-            >
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </LinearLayout>
 
 </LinearLayout>

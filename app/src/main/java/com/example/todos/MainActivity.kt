@@ -13,6 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -29,18 +30,27 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
+
         binding.buttonOne.setOnClickListener {
             lifecycleScope.launch {
-                apiHelper.createTodos().collect() {
+                val text = binding.editText.text.toString()
+                if (text.isBlank()) {
+                    return@launch
                 }
+                apiHelper.createTodos(text).collect()
             }
         }
 
         lifecycleScope.launch {
             apiHelper.getTodos().collect() { todos ->
-                binding.buttonOne.text = "Total todos: ${todos.size}"
+                binding.totalTodos.text = "Total todos: ${todos.size}"
+            }
+        }
+
+        lifecycleScope.launch {
+            apiHelper.getTodos().collect() { todos ->
                 items.clear()
-                val newItems = todos.toMutableList()
+                val newItems = todos.reversed().toMutableList()
                 items.addAll(newItems)
                 adapter.notifyDataSetChanged()
             }
