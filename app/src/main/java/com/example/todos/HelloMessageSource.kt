@@ -12,8 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.Part
 import retrofit2.http.Path
 
 data class TodoDto(
@@ -23,6 +23,7 @@ data class TodoDto(
 )
 
 data class CreateTodoDto(val text: String)
+data class PatchTodoDto(val done: Boolean)
 
 interface TodosService {
     @GET("/")
@@ -33,6 +34,9 @@ interface TodosService {
 
     @DELETE("/{id}")
     suspend fun deleteTodo(@Path("id") id: Int): TodoDto
+
+    @PATCH("/{id}")
+    suspend fun toggleDone(@Path("id") id: Int, @Body todo: PatchTodoDto): TodoDto
 }
 
 object RetrofitBuilder {
@@ -53,6 +57,7 @@ interface TodosApiHelper {
     fun getTodos(): Flow<List<TodoDto>>
     fun createTodos(text: String): Flow<TodoDto>
     fun deleteTodo(id: Int): Flow<TodoDto?>
+    fun toggleDone(id: Int, done: Boolean): Flow<TodoDto>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
@@ -83,6 +88,15 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
             } catch (e: Exception) {
                 emit(null)
             }
+        }.onCompletion {
+            refresh()
+        }
+    }
+
+    override fun toggleDone(id: Int, done: Boolean): Flow<TodoDto> {
+        return flow {
+            val todo = todosService.toggleDone(id, PatchTodoDto(done))
+            emit(todo)
         }.onCompletion {
             refresh()
         }

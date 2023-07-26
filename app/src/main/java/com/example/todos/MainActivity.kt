@@ -1,23 +1,14 @@
 package com.example.todos
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.todos.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -40,6 +31,17 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         "Deleted todo ${model.id}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        adapter.setToggleClickListener {
+            lifecycleScope.launch {
+                apiHelper.toggleDone(it.id, !it.done).collect {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Toggled todo ${it.id}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

@@ -4,17 +4,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+
 
 class ListAdapter(private val items: MutableList<TodoDto>) :
     RecyclerView.Adapter<ListAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.listItemTextView)
         val deleteButton: Button = itemView.findViewById(R.id.itemDeleteButton)
+        val toggleButton: Button = itemView.findViewById(R.id.itemToggle)
+        val checkBox: CheckBox = itemView.findViewById(R.id.listItemCheckBox)
     }
 
     private var listener: ((position: Int, model: TodoDto) -> Unit)? = null
+    private var toggleListener: ((model: TodoDto) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -27,12 +32,22 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
         holder.deleteButton.setOnClickListener {
             listener?.invoke(position, item)
         }
-        holder.textView.text =
-            "${item.id}: ${item.text} is ${if (item.done) "done" else "not done"}"
+        holder.toggleButton.setOnClickListener {
+            toggleListener?.invoke(item)
+        }
+        holder.checkBox.isChecked = item.done
+        holder.checkBox.setOnCheckedChangeListener { compoundButton, b ->
+            toggleListener?.invoke(item)
+        }
+        holder.textView.text = item.text
     }
 
     fun setOnClickListener(listener: (position: Int, model: TodoDto) -> Unit) {
         this.listener = listener
+    }
+
+    fun setToggleClickListener(listener: (model: TodoDto) -> Unit) {
+        this.toggleListener = listener
     }
 
     override fun getItemCount(): Int {
