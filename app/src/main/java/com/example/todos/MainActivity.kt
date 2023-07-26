@@ -34,6 +34,18 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
+        adapter.setOnClickListener { position, model ->
+            lifecycleScope.launch {
+                apiHelper.deleteTodo(model.id).collect {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Deleted todo ${model.id}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
 
         binding.buttonOne.setOnClickListener {
             lifecycleScope.launch {
