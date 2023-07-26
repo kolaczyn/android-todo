@@ -52,7 +52,7 @@ object RetrofitBuilder {
 interface TodosApiHelper {
     fun getTodos(): Flow<List<TodoDto>>
     fun createTodos(text: String): Flow<TodoDto>
-    fun deleteTodo(id: Int): Flow<TodoDto>
+    fun deleteTodo(id: Int): Flow<TodoDto?>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
@@ -75,10 +75,14 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
         }
     }
 
-    override fun deleteTodo(id: Int): Flow<TodoDto> {
+    override fun deleteTodo(id: Int): Flow<TodoDto?> {
         return flow {
-            val todo = todosService.deleteTodo(id)
-            emit(todo)
+            try {
+                val todo = todosService.deleteTodo(id)
+                emit(todo)
+            } catch (e: Exception) {
+                emit(null)
+            }
         }.onCompletion {
             refresh()
         }

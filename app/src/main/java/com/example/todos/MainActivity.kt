@@ -56,6 +56,14 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val text = binding.editText.text.toString().toIntOrNull() ?: return@launch
                 apiHelper.deleteTodo(text).collect() {
+                    if (it == null) {
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "No such todo exists",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        return@collect
+                    }
                     Log.i("MainActivity", "Deleted todo: $it")
                     Snackbar.make(
                         findViewById(android.R.id.content),
