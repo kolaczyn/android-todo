@@ -21,7 +21,8 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.textView.text = "${item.text} is ${if (item.done) "done" else "not done"}"
+        holder.textView.text =
+            "${item.id}: ${item.text} is ${if (item.done) "done" else "not done"}"
     }
 
     override fun getItemCount(): Int {

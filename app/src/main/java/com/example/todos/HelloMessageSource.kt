@@ -6,13 +6,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.Path
 
 data class TodoDto(
     @SerializedName("id") val id: Int = 0,
@@ -28,6 +30,9 @@ interface TodosService {
 
     @POST("/")
     suspend fun createTodos(@Body todo: CreateTodoDto): TodoDto
+
+    @DELETE("/{id}")
+    suspend fun deleteTodo(@Path("id") id: Int): TodoDto
 }
 
 object RetrofitBuilder {
@@ -47,6 +52,7 @@ object RetrofitBuilder {
 interface TodosApiHelper {
     fun getTodos(): Flow<List<TodoDto>>
     fun createTodos(text: String): Flow<TodoDto>
+    fun deleteTodo(id: Int): Flow<TodoDto>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
@@ -62,11 +68,24 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
 
     override fun createTodos(text: String): Flow<TodoDto> {
         return flow {
-            val stuff = todosService.createTodos(CreateTodoDto(text))
-            emit(stuff)
+            val todo = todosService.createTodos(CreateTodoDto(text))
+            emit(todo)
         }.onCompletion {
-            _refreshFlow.value = _refreshFlow.value + 1
+            refresh()
         }
+    }
+
+    override fun deleteTodo(id: Int): Flow<TodoDto> {
+        return flow {
+            val todo = todosService.deleteTodo(id)
+            emit(todo)
+        }.onCompletion {
+            refresh()
+        }
+    }
+
+    private fun refresh() {
+        _refreshFlow.value = _refreshFlow.value + 1
     }
 }
 

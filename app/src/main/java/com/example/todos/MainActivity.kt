@@ -9,10 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todos.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -49,8 +52,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.buttonTwo.setOnClickListener {
+            lifecycleScope.launch {
+                val text = binding.editText.text.toString().toIntOrNull() ?: return@launch
+                apiHelper.deleteTodo(text).collect() {
+                    Log.i("MainActivity", "Deleted todo: $it")
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        "First todo id: ${it.id}",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
         lifecycleScope.launch {
-            apiHelper.getTodos().collect() { todos ->
+            apiHelper.getTodos().collect { todos ->
                 binding.totalTodos.text = "Total todos: ${todos.size}"
             }
         }
