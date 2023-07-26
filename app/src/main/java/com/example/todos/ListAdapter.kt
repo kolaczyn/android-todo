@@ -50,9 +50,4 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
     override fun getItemCount(): Int {
         return items.size
     }
-
-    fun removeItem(position: Int) {
-        items.removeAt(position)
-        notifyItemRemoved(position)
-    }
 }
