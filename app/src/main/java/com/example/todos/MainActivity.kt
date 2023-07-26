@@ -95,8 +95,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             apiHelper.getTodos().collect() { todos ->
                 items.clear()
-                val newItems = todos.reversed().toMutableList()
-                items.addAll(newItems)
+                items.addAll(todos)
                 adapter.notifyDataSetChanged()
             }
 
