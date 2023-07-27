@@ -3,12 +3,14 @@ package com.example.todos
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+
+typealias OnItemClickListener = (position: Int, model: TodoDto) -> Unit
+typealias OnItemToggleListener = (model: TodoDto) -> Unit
 
 class ListAdapter(private val items: MutableList<TodoDto>) :
     RecyclerView.Adapter<ListAdapter.ViewHolder>() {
@@ -18,8 +20,8 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
         val checkBox: CheckBox = itemView.findViewById(R.id.listItemCheckBox)
     }
 
-    private var listener: ((position: Int, model: TodoDto) -> Unit)? = null
-    private var toggleListener: ((model: TodoDto) -> Unit)? = null
+    private var listener: OnItemClickListener? = null
+    private var toggleListener: OnItemToggleListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -33,17 +35,17 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
             listener?.invoke(position, item)
         }
         holder.checkBox.isChecked = item.done
-        holder.checkBox.setOnCheckedChangeListener { compoundButton, b ->
+        holder.checkBox.setOnCheckedChangeListener { _, _ ->
             toggleListener?.invoke(item)
         }
         holder.textView.text = item.text
     }
 
-    fun setOnClickListener(listener: (position: Int, model: TodoDto) -> Unit) {
+    fun setOnClickListener(listener: OnItemClickListener) {
         this.listener = listener
     }
 
-    fun setToggleClickListener(listener: (model: TodoDto) -> Unit) {
+    fun setToggleClickListener(listener: OnItemToggleListener) {
         this.toggleListener = listener
     }
 
