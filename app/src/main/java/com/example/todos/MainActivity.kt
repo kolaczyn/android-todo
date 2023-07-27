@@ -12,46 +12,16 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var apiHelper: TodosApiHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val apiHelper = ApiHelperImpl(RetrofitBuilder.apiService)
+        apiHelper = ApiHelperImpl(RetrofitBuilder.apiService)
 
-        var items = mutableListOf<TodoDto>();
-        val adapter = ListAdapter(items)
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-
-        adapter.setOnClickListener { model ->
-            lifecycleScope.launch {
-                apiHelper.deleteTodo(model.id).collect {
-                    Toast.makeText(
-                        this@MainActivity,
-                        getString(R.string.deleted_todo, model.id.toString()),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-        adapter.setToggleClickListener {
-            lifecycleScope.launch {
-                apiHelper.toggleDone(it.id, !it.done).collect {
-                    if (it == null) {
-                        notifySomethingWentWrong()
-                        return@collect
-                    }
-                    Toast.makeText(
-                        this@MainActivity,
-                        getString(R.string.toggled_todo, it.id.toString()),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-
+        setupList()
 
         binding.buttonOne.setOnClickListener {
             lifecycleScope.launch {
@@ -101,6 +71,43 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+    }
+
+    private fun setupList() {
+        var items = mutableListOf<TodoDto>();
+        val adapter = ListAdapter(items)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+
+        adapter.setOnClickListener { model ->
+            lifecycleScope.launch {
+                apiHelper.deleteTodo(model.id).collect {
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.deleted_todo, model.id.toString()),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        adapter.setToggleClickListener {
+            lifecycleScope.launch {
+                apiHelper.toggleDone(it.id, !it.done).collect {
+                    if (it == null) {
+                        notifySomethingWentWrong()
+                        return@collect
+                    }
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.toggled_todo, it.id.toString()),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
         lifecycleScope.launch {
             apiHelper.getTodos().collect() {
                 if (it == null) {
@@ -113,7 +120,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-
     }
 
     private fun notifySomethingWentWrong() {
