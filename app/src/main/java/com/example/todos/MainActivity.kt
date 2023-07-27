@@ -1,6 +1,7 @@
 package com.example.todos
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +39,10 @@ class MainActivity : AppCompatActivity() {
         adapter.setToggleClickListener {
             lifecycleScope.launch {
                 apiHelper.toggleDone(it.id, !it.done).collect {
+                    if (it == null) {
+                        notifySomethingWentWrong()
+                        return@collect
+                    }
                     Toast.makeText(
                         this@MainActivity,
                         getString(R.string.toggled_todo, it.id.toString()),
@@ -55,6 +60,10 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
                 apiHelper.createTodos(text).collect {
+                    if (it == null) {
+                        Log.i("MainActivity", "Error creating todo")
+                        return@collect
+                    }
                     binding.editText.text.clear()
                     Toast.makeText(
                         this@MainActivity,
@@ -70,11 +79,7 @@ class MainActivity : AppCompatActivity() {
                 val text = binding.editText.text.toString().toIntOrNull() ?: return@launch
                 apiHelper.deleteTodo(text).collect() {
                     if (it == null) {
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
-                            "No such todo exists",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        notifySomethingWentWrong()
                         return@collect
                     }
                     Snackbar.make(
@@ -88,17 +93,35 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             apiHelper.getTodos().collect {
+                if (it == null) {
+                    notifySomethingWentWrong()
+                    return@collect
+                }
                 binding.totalTodos.text = getString(R.string.total_todos, it.size.toString())
             }
         }
 
         lifecycleScope.launch {
-            apiHelper.getTodos().collect() { todos ->
+            apiHelper.getTodos().collect() {
+                if (it == null) {
+                    notifySomethingWentWrong()
+                    return@collect
+                }
                 items.clear()
-                items.addAll(todos)
+                items.addAll(it)
                 adapter.notifyDataSetChanged()
             }
 
         }
+
     }
+
+    private fun notifySomethingWentWrong() {
+        Toast.makeText(
+            this,
+            "Something went wrong!",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
 }

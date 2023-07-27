@@ -54,27 +54,35 @@ object RetrofitBuilder {
 }
 
 interface TodosApiHelper {
-    fun getTodos(): Flow<List<TodoDto>>
-    fun createTodos(text: String): Flow<TodoDto>
+    fun getTodos(): Flow<List<TodoDto>?>
+    fun createTodos(text: String): Flow<TodoDto?>
     fun deleteTodo(id: Int): Flow<TodoDto?>
-    fun toggleDone(id: Int, done: Boolean): Flow<TodoDto>
+    fun toggleDone(id: Int, done: Boolean): Flow<TodoDto?>
 }
 
 class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
     private val _refreshFlow = MutableStateFlow(0)
 
-    override fun getTodos(): Flow<List<TodoDto>> {
+    override fun getTodos(): Flow<List<TodoDto>?> {
         return _refreshFlow.asStateFlow().flatMapLatest {
             flow {
-                emit(todosService.getTodos())
+                try {
+                    emit(todosService.getTodos())
+                } catch (e: Exception) {
+                    emit(null)
+                }
             }
         }
     }
 
-    override fun createTodos(text: String): Flow<TodoDto> {
+    override fun createTodos(text: String): Flow<TodoDto?> {
         return flow {
-            val todo = todosService.createTodos(CreateTodoDto(text))
-            emit(todo)
+            try {
+                val todo = todosService.createTodos(CreateTodoDto(text))
+                emit(todo)
+            } catch (e: Exception) {
+                emit(null)
+            }
         }.onCompletion {
             refresh()
         }
@@ -93,10 +101,14 @@ class ApiHelperImpl(private val todosService: TodosService) : TodosApiHelper {
         }
     }
 
-    override fun toggleDone(id: Int, done: Boolean): Flow<TodoDto> {
+    override fun toggleDone(id: Int, done: Boolean): Flow<TodoDto?> {
         return flow {
-            val todo = todosService.toggleDone(id, PatchTodoDto(done))
-            emit(todo)
+            try {
+                val todo = todosService.toggleDone(id, PatchTodoDto(done))
+                emit(todo)
+            } catch (e: Exception) {
+                emit(null)
+            }
         }.onCompletion {
             refresh()
         }

@@ -9,8 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-typealias OnItemClickListener = (model: TodoDto) -> Unit
-typealias OnItemToggleListener = (model: TodoDto) -> Unit
+typealias Listener = (model: TodoDto) -> Unit
 
 class ListAdapter(private val items: MutableList<TodoDto>) :
     RecyclerView.Adapter<ListAdapter.ViewHolder>() {
@@ -20,8 +19,8 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
         val checkBox: CheckBox = itemView.findViewById(R.id.listItemCheckBox)
     }
 
-    private var listener: OnItemClickListener? = null
-    private var toggleListener: OnItemToggleListener? = null
+    private var listener: Listener? = null
+    private var toggleListener: Listener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -41,11 +40,11 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
         holder.textView.text = item.text
     }
 
-    fun setOnClickListener(listener: OnItemClickListener) {
+    fun setOnClickListener(listener: Listener) {
         this.listener = listener
     }
 
-    fun setToggleClickListener(listener: OnItemToggleListener) {
+    fun setToggleClickListener(listener: Listener) {
         this.toggleListener = listener
     }
 
