@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-typealias OnItemClickListener = (position: Int, model: TodoDto) -> Unit
+typealias OnItemClickListener = (model: TodoDto) -> Unit
 typealias OnItemToggleListener = (model: TodoDto) -> Unit
 
 class ListAdapter(private val items: MutableList<TodoDto>) :
@@ -32,7 +32,7 @@ class ListAdapter(private val items: MutableList<TodoDto>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.deleteButton.setOnClickListener {
-            listener?.invoke(position, item)
+            listener?.invoke(item)
         }
         holder.checkBox.isChecked = item.done
         holder.checkBox.setOnCheckedChangeListener { _, _ ->

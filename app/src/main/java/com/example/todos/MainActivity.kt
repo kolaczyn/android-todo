@@ -1,7 +1,6 @@
 package com.example.todos
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,7 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,12 +24,12 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter.setOnClickListener { position, model ->
+        adapter.setOnClickListener { model ->
             lifecycleScope.launch {
                 apiHelper.deleteTodo(model.id).collect {
                     Toast.makeText(
                         this@MainActivity,
-                        "Deleted todo ${model.id}",
+                        getString(R.string.deleted_todo, model.id.toString()),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                 apiHelper.toggleDone(it.id, !it.done).collect {
                     Toast.makeText(
                         this@MainActivity,
-                        "Toggled todo ${it.id}",
+                        getString(R.string.toggled_todo, it.id.toString()),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     binding.editText.text.clear()
                     Toast.makeText(
                         this@MainActivity,
-                        "Created todo: ${it.text}",
+                        getString(R.string.created_todo, it.text),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -78,10 +77,9 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                         return@collect
                     }
-                    Log.i("MainActivity", "Deleted todo: $it")
                     Snackbar.make(
                         findViewById(android.R.id.content),
-                        "First todo id: ${it.id}",
+                        getString(R.string.first_todo_id, it.id.toString()),
                         Snackbar.LENGTH_SHORT
                     ).show()
                 }
@@ -89,8 +87,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            apiHelper.getTodos().collect { todos ->
-                binding.totalTodos.text = "Total todos: ${todos.size}"
+            apiHelper.getTodos().collect {
+                binding.totalTodos.text = getString(R.string.total_todos, it.size.toString())
             }
         }
 

@@ -2,4 +2,10 @@
     <string name="app_name">Todos</string>
     <string name="add_todo">Add todo</string>
     <string name="placeholder">placeholder</string>
+    <string name="title_activity_about_me">AboutMe</string>
+    <string name="total_todos">Total todos: %1$s</string>
+    <string name="first_todo_id">First todo id: %1$s</string>
+    <string name="created_todo">Created todo: %1$s</string>
+    <string name="toggled_todo">Toggled todo %1$s</string>
+    <string name="deleted_todo">Deleted todo %1$s</string>
 </resources>
